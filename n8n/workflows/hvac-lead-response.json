@@ -1,0 +1,70 @@
+{
+  "name": "HVAC Lead Response and Follow-Up Demo",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hvac-lead",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-node",
+      "name": "Website Lead Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-560, 0],
+      "webhookId": "hvac-lead-demo"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body || $json;\nreturn [{ json: {\n  full_name: String(body.full_name || '').trim(),\n  email: String(body.email || '').trim().toLowerCase(),\n  phone: String(body.phone || '').trim(),\n  service_type: body.service_type || 'maintenance',\n  postal_code: String(body.postal_code || '').trim(),\n  message: String(body.message || '').trim(),\n  preferred_contact: body.preferred_contact || 'phone',\n  consent: body.consent === true\n}}];"
+      },
+      "id": "normalize-node",
+      "name": "Normalize Lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-320, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.HVAC_API_BASE_URL || 'http://host.docker.internal:8000') + '/api/leads' }}",
+        "sendHeaders": true,
+        "headerParameters": {"parameters": [{"name": "Content-Type", "value": "application/json"}]},
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "api-node",
+      "name": "Run Lead Automation API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-60, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "respond-node",
+      "name": "Return Workflow Result",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [200, 0]
+    }
+  ],
+  "connections": {
+    "Website Lead Webhook": {"main": [[{"node": "Normalize Lead", "type": "main", "index": 0}]]},
+    "Normalize Lead": {"main": [[{"node": "Run Lead Automation API", "type": "main", "index": 0}]]},
+    "Run Lead Automation API": {"main": [[{"node": "Return Workflow Result", "type": "main", "index": 0}]]}
+  },
+  "pinData": {},
+  "settings": {"executionOrder": "v1"},
+  "active": false,
+  "versionId": "portfolio-demo-v1",
+  "meta": {"templateCredsSetupCompleted": true},
+  "tags": []
+}
