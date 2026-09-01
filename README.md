@@ -4,6 +4,12 @@ A working portfolio demo that turns an HVAC inquiry into a classified, assigned 
 
 The project is intentionally transparent: it uses sample data, explainable rules and simulated notifications. It does not claim production deployment or client results.
 
+## Live interactive demo
+
+[Open the HVAC LeadFlow demo](https://hamidsaeedi7.github.io/hvac-lead-automation/)
+
+The public GitHub Pages preview mirrors the lead classification and routing flow safely in the browser. Test data is stored locally and no real email, SMS or API request is sent. The repository also includes the complete FastAPI, SQLite, Docker, automated test and n8n workflow implementation.
+
 ## What it demonstrates
 
 - Responsive lead-capture experience
