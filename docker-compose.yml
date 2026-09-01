@@ -1,0 +1,28 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      HVAC_DATABASE_PATH: /app/data/hvac_demo.db
+    volumes:
+      - hvac_data:/app/data
+
+  n8n:
+    image: n8nio/n8n:latest
+    profiles: ["automation"]
+    ports:
+      - "5678:5678"
+    environment:
+      HVAC_API_BASE_URL: http://api:8000
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_PERSONALIZATION_ENABLED: "false"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      - api
+
+volumes:
+  hvac_data:
+  n8n_data:
+
